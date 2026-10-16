@@ -1,5 +1,6 @@
 package com.tunpixel.network;
 
+import com.tunpixel.LogStore;
 import com.tunpixel.TunnelManager;
 
 import java.io.BufferedReader;
