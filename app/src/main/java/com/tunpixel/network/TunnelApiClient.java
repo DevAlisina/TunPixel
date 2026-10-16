@@ -13,7 +13,7 @@ import java.nio.charset.StandardCharsets;
 public class TunnelApiClient {
     private static final String TAG = "TunnelApiClient";
     public static final String QUICK_SERVICE_URL = "https://api.trycloudflare.com";
-    private static final String API_ENDPOINT = QUICK_SERVICE_URL + "/";
+    private static final String API_ENDPOINT = QUICK_SERVICE_URL + "/tunnel";
 
     private static volatile TunnelResponse cachedResponse;
 
@@ -21,9 +21,8 @@ public class TunnelApiClient {
         LogStore.d(TAG, "Requesting quick tunnel from TryCloudflare API");
         LogStore.d(TAG, "Local URL: " + localUrl);
 
-        // The TryCloudflare API is managed by cloudflared itself via --quick-service flag
-        // We still make a request to get metadata, but the actual tunnel is established by cloudflared
-        // connecting to https://api.trycloudflare.com/
+        // The TryCloudflare API provisions a quick tunnel at https://api.trycloudflare.com/tunnel
+        // We make a request to get metadata, and cloudflared establishes and manages the connection.
 
         try {
             URL url = new URL(API_ENDPOINT);
@@ -35,7 +34,7 @@ public class TunnelApiClient {
             connection.setReadTimeout(10000);
             connection.setDoOutput(true);
 
-            String jsonInputString = String.format("{\"url\":\"%s\"}", localUrl);
+            String jsonInputString = "{}";
             LogStore.d(TAG, "Request body: " + jsonInputString);
 
             try (DataOutputStream wr = new DataOutputStream(connection.getOutputStream())) {
@@ -50,7 +49,12 @@ public class TunnelApiClient {
             if (responseCode >= 200 && responseCode < 300) {
                 br = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
             } else {
-                br = new BufferedReader(new InputStreamReader(connection.getErrorStream(), StandardCharsets.UTF_8));
+                java.io.InputStream es = connection.getErrorStream();
+                if (es != null) {
+                    br = new BufferedReader(new InputStreamReader(es, StandardCharsets.UTF_8));
+                } else {
+                    br = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
+                }
             }
 
             StringBuilder response = new StringBuilder();
@@ -78,6 +82,13 @@ public class TunnelApiClient {
             String secret = extractJsonValue(json, "secret");
             String tunnelUrl = extractJsonValue(json, "tunnel_url");
             String error = extractJsonValue(json, "error");
+            if (error == null || error.isEmpty()) {
+                error = extractJsonValue(json, "message");
+            }
+
+            if (tunnelUrl == null && hostname != null && !hostname.isEmpty()) {
+                tunnelUrl = "https://" + hostname;
+            }
 
             if (error != null && !error.isEmpty()) {
                 return new TunnelResponse(false, tunnelUrl, hostname, token, secret, error);

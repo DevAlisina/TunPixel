@@ -119,18 +119,18 @@ public class TunnelManager {
 
         // TryCloudflare API request to get tunnel details
         TunnelApiClient.TunnelResponse response = TunnelApiClient.requestQuickTunnel(localUrl);
-        if (response == null || !response.success) {
-            LogStore.e(TAG, "Failed to create tunnel via TryCloudflare API");
-            return;
+        if (response != null && response.success) {
+            tunnelUrl = response.tunnelUrl;
+            tunnelHostname = response.hostname;
+            tunnelToken = response.token;
+            tunnelSecret = response.secret;
+            LogStore.i(TAG, "API response: success=" + response.success + ", hostname=" + response.hostname);
+            LogStore.d(TAG, "Parsed tunnel fields: url=" + tunnelUrl + ", hostname=" + tunnelHostname);
+        } else {
+            LogStore.w(TAG, "Could not pre-fetch tunnel via TryCloudflare API"
+                    + (response != null && response.error != null ? ": " + response.error : "")
+                    + "; proceeding to start cloudflared");
         }
-
-        tunnelUrl = response.tunnelUrl;
-        tunnelHostname = response.hostname;
-        tunnelToken = response.token;
-        tunnelSecret = response.secret;
-
-        LogStore.i(TAG, "API response: success=" + response.success + ", hostname=" + response.hostname);
-        LogStore.d(TAG, "Parsed tunnel fields: url=" + tunnelUrl + ", hostname=" + tunnelHostname);
 
         // Build process command with DNS override
         ProcessBuilder pb = new ProcessBuilder();
@@ -204,7 +204,7 @@ public class TunnelManager {
                     String line;
                     while ((line = reader.readLine()) != null) {
                         LogStore.d("cloudflared", line);
-                        if (line.contains("hostname")) {
+                        if (line.contains("trycloudflare.com") || line.contains("hostname")) {
                             // Parse tunnel URL from output if needed
                             parseTunnelOutput(line);
                         }
@@ -256,11 +256,17 @@ public class TunnelManager {
 
     private void parseTunnelOutput(String line) {
         // Try to extract URL from cloudflared output
-        // cloudflared outputs: "<hostname> ..."
         String[] parts = line.split("\\s+");
         for (String part : parts) {
             if (part.startsWith("http://") || part.startsWith("https://")) {
                 tunnelUrl = part;
+                try {
+                    Uri uri = Uri.parse(part);
+                    if (uri.getHost() != null) {
+                        tunnelHostname = uri.getHost();
+                    }
+                } catch (Exception ignored) {
+                }
                 break;
             }
         }
