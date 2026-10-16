@@ -45,6 +45,7 @@
     <style name="Widget.TunPixel.CardView" parent="Widget.Material3.CardView">
         <item name="android:strokeColor">@color/color_outline_variant</item>
         <item name="android:strokeWidth">1dp</item>
-        <item name="android:cornerRadius">16dp</item>
+        <item name="android:cornerRadius">@dimen/card_corner_radius</item>
     </style>
+</resources>
 </resources>
