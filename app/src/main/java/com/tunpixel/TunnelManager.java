@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -134,12 +135,37 @@ public class TunnelManager {
                     + "; proceeding to start cloudflared");
         }
 
-        // Build process command with DNS override
+        // Build process command.
+        // KEY FIX: Go's net package on Android uses cgo/getaddrinfo which hardcodes
+        // SRV lookups to [::1]:53 — a non-existent resolver on Android. This causes
+        // cloudflared's edge discovery to always fail. The fix: pre-resolve Cloudflare
+        // edge hostnames here via Java's InetAddress (uses Android's real resolver),
+        // then pass the IPs via --edge flags to bypass Go's DNS path entirely.
         try {
-            ProcessBuilder pb = new ProcessBuilder();
-            List<String> command = new ArrayList<>();
-            command.add(cloudflaredBinary.getAbsolutePath());
-            command.add("tunnel");
+            // Pre-resolve Cloudflare edge IPs via Android/Java resolver
+            List<String> edgeArgs = new ArrayList<>();
+            String[] edgeHostnames = {"region1.v2.argotunnel.com", "region2.v2.argotunnel.com"};
+            for (String host : edgeHostnames) {
+                try {
+                    InetAddress[] addrs = InetAddress.getAllByName(host);
+                    for (InetAddress addr : addrs) {
+                        // Only use IPv4 to avoid Android IPv6 loopback issues
+                        if (addr instanceof java.net.Inet4Address) {
+                            edgeArgs.add("--edge");
+                            edgeArgs.add(addr.getHostAddress() + ":7844");
+                            LogStore.d(TAG, "Resolved edge: " + host + " -> " + addr.getHostAddress());
+                        }
+                    }
+                } catch (Exception e) {
+                    LogStore.w(TAG, "Could not resolve edge host " + host + ": " + e.getMessage());
+                }
+            }
+            if (edgeArgs.isEmpty()) {
+                // Fallback: well-known static Cloudflare Argo edge IPs
+                LogStore.w(TAG, "Edge DNS resolution failed; using static fallback IPs");
+                edgeArgs.add("--edge"); edgeArgs.add("198.41.192.77:7844");
+                edgeArgs.add("--edge"); edgeArgs.add("198.41.200.43:7844");
+            }
 
             // DNS resolver address to prevent Go from querying [::1]:53 on Android
             String[] dnsServers;
@@ -150,6 +176,17 @@ public class TunnelManager {
             } else {
                 dnsServers = new String[]{"1.1.1.1:53", "1.0.0.1:53"};
             }
+
+            ProcessBuilder pb = new ProcessBuilder();
+            List<String> command = new ArrayList<>();
+            command.add(cloudflaredBinary.getAbsolutePath());
+            command.add("tunnel");
+            // Force IPv4 and pre-resolved IPs to bypass Go's SRV DNS lookup
+            command.add("--edge-ip-version");
+            command.add("4");
+            command.addAll(edgeArgs);
+            // Prevent autoupdate attempts which fail on Android (noexec/read-only dirs)
+            command.add("--no-autoupdate");
 
             if (tunnelToken != null && !tunnelToken.isEmpty()) {
                 command.add("run");
@@ -181,24 +218,6 @@ public class TunnelManager {
                 if (arg != null) cmdLog.append(' ').append(arg);
             }
             LogStore.d(TAG, cmdLog.toString());
-
-            // Create temporary resolv.conf for Go resolver via stdin
-            try {
-                File tempResolv = File.createTempFile("cloudflared_resolv", ".conf", context.getCacheDir());
-                try (java.io.FileWriter writer = new java.io.FileWriter(tempResolv)) {
-                    for (String dns : dnsServers) {
-                        // dnsServers entries are in host:port format; extract host part
-                        String host = dns.split(":")[0];
-                        writer.write("nameserver " + host + "\n");
-                    }
-                }
-                // Ensure the file is removed when the app exits
-                tempResolv.deleteOnExit();
-                // Feed the file to cloudflared's stdin so Go resolver reads it as /etc/resolv.conf
-                pb.redirectInput(java.lang.ProcessBuilder.Redirect.from(tempResolv));
-            } catch (Exception e) {
-                LogStore.e(TAG, "Failed to create temporary resolv.conf for DNS", e);
-            }
 
             Process process = pb.start();
             tunnelProcess = process;
