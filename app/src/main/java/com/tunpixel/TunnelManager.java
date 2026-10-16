@@ -180,25 +180,27 @@ public class TunnelManager {
         }
         LogStore.d(TAG, cmdLog.toString());
 
-        // DNS environment variables to fix resolv.conf issue on Android
-        Map<String, String> env = pb.environment();
-        env.put("GODEBUG", "netdns=cgo");
-        env.put("ANDROID_DATA", context.getCacheDir().getParent());
-        env.put("RES_OPTIONS", "ndots:2 timeout:1 attempts:2");
-
-        if ("custom".equals(dnsMode)) {
-            env.put("CLOUDFLARED_DNS", "1.1.1.1,1.0.0.1");
-        }
-        LogStore.d(TAG, "env: GODEBUG=netdns=cgo ANDROID_DATA=" + context.getCacheDir().getParent()
-                + " RES_OPTIONS=ndots:2 timeout:1 attempts:2" + ("custom".equals(dnsMode) ? " CLOUDFLARED_DNS=1.1.1.1,1.0.0.1" : ""));
-
-        pb.redirectErrorStream(true);
-
+        // Create temporary resolv.conf for Go resolver via stdin
         try {
-            Process process = pb.start();
-            tunnelProcess = process;
-            isRunning = true;
-            LogStore.i(TAG, "cloudflared process started");
+            File tempResolv = File.createTempFile("cloudflared_resolv", ".conf", context.getCacheDir());
+            try (java.io.FileWriter writer = new java.io.FileWriter(tempResolv)) {
+                for (String dns : dnsServers) {
+                    // dnsServers entries are in host:port format; extract host part
+                    String host = dns.split(":")[0];
+                    writer.write("nameserver " + host + "\n");
+                }
+            }
+            // Ensure the file is removed when the app exits
+            tempResolv.deleteOnExit();
+            // Feed the file to cloudflared's stdin so Go resolver reads it as /etc/resolv.conf
+            pb.redirectInput(java.lang.ProcessBuilder.Redirect.from(tempResolv));
+        } catch (Exception e) {
+            LogStore.e(TAG, "Failed to create temporary resolv.conf for DNS", e);
+        }
+        tunnelProcess = pb.start();
+process = tunnelProcess;
+isRunning = true;
+LogStore.i(TAG, "cloudflared process started");
 
             // Start log reader thread
             new Thread(() -> {
