@@ -23,15 +23,14 @@
         android:layout_height="match_parent"
         android:layout_margin="24dp"
         android:layout_marginTop="?attr/actionBarSize"
-        android:orientation="vertical"
-        android:spacing="24dp">
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/textStatus"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/text_tunnel_stopped"
-            android:textAppearance="?attr/titleLarge"
+            android:textAppearance="?attr/textAppearanceTitleLarge"
             android:gravity="center"
             android:textColor="?attr/colorOnSurface" />
 
@@ -48,15 +47,14 @@
             android:id="@+id/dnsContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:spacing="8dp">
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/textDnsLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/text_dns_mode"
-                android:textAppearance="?attr/labelMedium"
+                android:textAppearance="?attr/textAppearanceLabelMedium"
                 android:textColor="?attr/colorOnSurfaceVariant" />
 
             <com.google.android.material.chip.ChipGroup
@@ -96,7 +94,7 @@
             android:icon="@drawable/ic_baseline_play_arrow_24"
             android:iconTint="?attr/colorOnPrimary"
             android:textAllCaps="false"
-            android:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Button" />
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Button" />
 
         <Button
             android:id="@+id/buttonDetails"

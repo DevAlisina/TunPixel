@@ -5,10 +5,9 @@
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorBackground"
+    android:background="?attr/colorSurface"
     android:orientation="vertical"
     android:padding="24dp"
-    android:spacing="24dp"
     tools:context=".BinaryDownloadActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
@@ -18,7 +17,7 @@
         android:background="?attr/colorSurface"
         app:title="Downloading Binary"
         app:navigationIcon="@drawable/ic_baseline_arrow_back_24"
-        app:layout_marginBottom="16dp" />
+        android:layout_marginBottom="16dp" />
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -34,7 +33,7 @@
         android:id="@+id/textStatus"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?attr/bodyMedium"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
         android:textColor="?attr/colorOnSurfaceVariant"
         android:gravity="center_horizontal" />
 
@@ -42,8 +41,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:orientation="horizontal"
-        android:spacing="16dp">
+        android:orientation="horizontal">
 
         <Button
             android:id="@+id/buttonDownload"
