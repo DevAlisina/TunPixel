@@ -197,10 +197,10 @@ public class TunnelManager {
         } catch (Exception e) {
             LogStore.e(TAG, "Failed to create temporary resolv.conf for DNS", e);
         }
-        tunnelProcess = pb.start();
-process = tunnelProcess;
-isRunning = true;
-LogStore.i(TAG, "cloudflared process started");
+        Process process = pb.start();
+        tunnelProcess = process;
+        isRunning = true;
+        LogStore.i(TAG, "cloudflared process started");
 
             // Start log reader thread
             new Thread(() -> {
