@@ -42,7 +42,7 @@ jobs:
           echo "KEYSTORE_PATH=$RUNNER_TEMP/tunpixel.keystore" >> "$GITHUB_ENV"
           echo "Using release keystore from secrets."
         else
-          echo "No KEYSTORE_BASE64 secret found; falling back to debug signing."
+          echo "::warning::No KEYSTORE_BASE64 secret found; falling back to the CI-generated debug key. In-place updates will fail because the key changes every run."
         fi
 
     - name: Build release APK
@@ -51,6 +51,17 @@ jobs:
         KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
         KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
       run: ./gradlew assembleRelease
+
+    - name: Verify release APK is signed and aligned
+      run: |
+        set -o pipefail
+        APK=app/build/outputs/apk/release/app-release.apk
+        BT=$(ls -d "${ANDROID_HOME}"/build-tools/*/ 2>/dev/null | sort -V | tail -1)
+        "${BT}zipalign" -c -v 4 "$APK"
+        "${BT}apksigner" verify --verbose --print-certs "$APK" | tee "$RUNNER_TEMP/apksigner.txt"
+        if grep -q "CN=Android Debug" "$RUNNER_TEMP/apksigner.txt"; then
+          echo "::warning::APK signed with the throwaway debug key. Add the KEYSTORE_BASE64/KEYSTORE_PASSWORD/KEY_ALIAS/KEY_PASSWORD secrets for stable release signing."
+        fi
 
     - name: Rename APK
       if: github.event_name != 'pull_request'
@@ -71,6 +82,10 @@ jobs:
         body: |
           Automated build from commit ${{ github.sha }}.
           Build number: ${{ steps.build.outputs.number }}
+
+          Download the `.apk` asset below (TunPixel-${{ steps.build.outputs.number }}.apk).
+          Do NOT install the file from the Actions > Artifacts section - that is a `.zip`
+          archive and Android will report "There was a problem parsing the package".
         files: TunPixel-${{ steps.build.outputs.number }}.apk
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

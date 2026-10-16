@@ -7,7 +7,10 @@ android {
     compileSdk 34
 
     def ksPath = System.getenv("KEYSTORE_PATH")
-    def hasKeystore = ksPath != null && !ksPath.trim().isEmpty() && file(ksPath).exists()
+    if (ksPath == null || ksPath.trim().isEmpty()) {
+        ksPath = project.findProperty("RELEASE_KEYSTORE_PATH")
+    }
+    def hasKeystore = ksPath != null && !ksPath.toString().trim().isEmpty() && file(ksPath).exists()
 
     defaultConfig {
         applicationId "com.tunpixel"
@@ -20,7 +23,16 @@ android {
     }
 
     signingConfigs {
+        debug {
+            // Some OEM installers only accept JAR (v1) signatures; keep v1 on for the fallback too.
+            enableV1Signing true
+            enableV2Signing true
+        }
         release {
+            // Sign with v1 + v2 + v3 so the APK installs on every device/ROM.
+            enableV1Signing true
+            enableV2Signing true
+            enableV3Signing true
             if (hasKeystore) {
                 storeFile file(ksPath)
                 storePassword System.getenv("KEYSTORE_PASSWORD")
@@ -37,6 +49,9 @@ android {
             if (hasKeystore) {
                 signingConfig signingConfigs.release
             } else {
+                logger.lifecycle("WARNING: no release keystore found (KEYSTORE_PATH / RELEASE_KEYSTORE_PATH). " +
+                        "Falling back to the CI-generated debug key: every build gets a DIFFERENT signature, " +
+                        "so in-place updates will fail. Configure the KEYSTORE_BASE64 secret to fix this.")
                 signingConfig signingConfigs.debug
             }
         }
