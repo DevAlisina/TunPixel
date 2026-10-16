@@ -135,72 +135,75 @@ public class TunnelManager {
         }
 
         // Build process command with DNS override
-        ProcessBuilder pb = new ProcessBuilder();
-        List<String> command = new ArrayList<>();
-        command.add(cloudflaredBinary.getAbsolutePath());
-        command.add("tunnel");
-
-        // DNS resolver address to prevent Go from querying [::1]:53 on Android
-        String[] dnsServers;
-        if ("custom".equals(dnsMode)) {
-            dnsServers = new String[]{"1.1.1.1:53", "1.0.0.1:53"};
-        } else if ("auto".equals(dnsMode)) {
-            dnsServers = new String[]{"1.1.1.1:53", "8.8.8.8:53"};
-        } else {
-            dnsServers = new String[]{"1.1.1.1:53", "1.0.0.1:53"};
-        }
-
-        if (tunnelToken != null && !tunnelToken.isEmpty()) {
-            command.add("run");
-            command.add("--token");
-            command.add(tunnelToken);
-            command.add("--url");
-            command.add(localUrl);
-            for (String dns : dnsServers) {
-                command.add("--dns-resolver-addrs");
-                command.add(dns);
-            }
-        } else {
-            command.add("--url");
-            command.add(localUrl);
-            command.add("--quick-service");
-            command.add(TunnelApiClient.QUICK_SERVICE_URL);
-            for (String dns : dnsServers) {
-                command.add("--dns-resolver-addrs");
-                command.add(dns);
-            }
-        }
-
-        pb.command(command);
-
-        // Log the full command line so the logs screen shows exactly what runs.
-        StringBuilder cmdLog = new StringBuilder("exec:");
-        for (String arg : pb.command()) {
-            if (arg != null) cmdLog.append(' ').append(arg);
-        }
-        LogStore.d(TAG, cmdLog.toString());
-
-        // Create temporary resolv.conf for Go resolver via stdin
         try {
-            File tempResolv = File.createTempFile("cloudflared_resolv", ".conf", context.getCacheDir());
-            try (java.io.FileWriter writer = new java.io.FileWriter(tempResolv)) {
+            ProcessBuilder pb = new ProcessBuilder();
+            List<String> command = new ArrayList<>();
+            command.add(cloudflaredBinary.getAbsolutePath());
+            command.add("tunnel");
+
+            // DNS resolver address to prevent Go from querying [::1]:53 on Android
+            String[] dnsServers;
+            if ("custom".equals(dnsMode)) {
+                dnsServers = new String[]{"1.1.1.1:53", "1.0.0.1:53"};
+            } else if ("auto".equals(dnsMode)) {
+                dnsServers = new String[]{"1.1.1.1:53", "8.8.8.8:53"};
+            } else {
+                dnsServers = new String[]{"1.1.1.1:53", "1.0.0.1:53"};
+            }
+
+            if (tunnelToken != null && !tunnelToken.isEmpty()) {
+                command.add("run");
+                command.add("--token");
+                command.add(tunnelToken);
+                command.add("--url");
+                command.add(localUrl);
                 for (String dns : dnsServers) {
-                    // dnsServers entries are in host:port format; extract host part
-                    String host = dns.split(":")[0];
-                    writer.write("nameserver " + host + "\n");
+                    command.add("--dns-resolver-addrs");
+                    command.add(dns);
+                }
+            } else {
+                command.add("--url");
+                command.add(localUrl);
+                command.add("--quick-service");
+                command.add(TunnelApiClient.QUICK_SERVICE_URL);
+                for (String dns : dnsServers) {
+                    command.add("--dns-resolver-addrs");
+                    command.add(dns);
                 }
             }
-            // Ensure the file is removed when the app exits
-            tempResolv.deleteOnExit();
-            // Feed the file to cloudflared's stdin so Go resolver reads it as /etc/resolv.conf
-            pb.redirectInput(java.lang.ProcessBuilder.Redirect.from(tempResolv));
-        } catch (Exception e) {
-            LogStore.e(TAG, "Failed to create temporary resolv.conf for DNS", e);
-        }
-        Process process = pb.start();
-        tunnelProcess = process;
-        isRunning = true;
-        LogStore.i(TAG, "cloudflared process started");
+
+            pb.command(command);
+            pb.redirectErrorStream(true);
+
+            // Log the full command line so the logs screen shows exactly what runs.
+            StringBuilder cmdLog = new StringBuilder("exec:");
+            for (String arg : pb.command()) {
+                if (arg != null) cmdLog.append(' ').append(arg);
+            }
+            LogStore.d(TAG, cmdLog.toString());
+
+            // Create temporary resolv.conf for Go resolver via stdin
+            try {
+                File tempResolv = File.createTempFile("cloudflared_resolv", ".conf", context.getCacheDir());
+                try (java.io.FileWriter writer = new java.io.FileWriter(tempResolv)) {
+                    for (String dns : dnsServers) {
+                        // dnsServers entries are in host:port format; extract host part
+                        String host = dns.split(":")[0];
+                        writer.write("nameserver " + host + "\n");
+                    }
+                }
+                // Ensure the file is removed when the app exits
+                tempResolv.deleteOnExit();
+                // Feed the file to cloudflared's stdin so Go resolver reads it as /etc/resolv.conf
+                pb.redirectInput(java.lang.ProcessBuilder.Redirect.from(tempResolv));
+            } catch (Exception e) {
+                LogStore.e(TAG, "Failed to create temporary resolv.conf for DNS", e);
+            }
+
+            Process process = pb.start();
+            tunnelProcess = process;
+            isRunning = true;
+            LogStore.i(TAG, "cloudflared process started");
 
             // Start log reader thread
             new Thread(() -> {
