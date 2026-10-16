@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorSurface"
+        app:title="@string/app_name"
+        app:navigationIcon="@drawable/ic_baseline_vpn_key_24"
+        app:popupTheme="@style/ThemeOverlay.Material3.Light"
+        app:titleCentered="true" />
+
+    <LinearLayout
+        android:id="@+id/main_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="24dp"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:orientation="vertical"
+        android:spacing="24dp">
+
+        <TextView
+            android:id="@+id/textStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/text_tunnel_stopped"
+            android:textAppearance="?attr/titleLarge"
+            android:gravity="center"
+            android:textColor="?attr/colorOnSurface" />
+
+        <ImageView
+            android:id="@+id/imageTunnel"
+            android:layout_width="128dp"
+            android:layout_height="128dp"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/ic_baseline_cloud_24"
+            android:tint="?attr/colorSecondary"
+            android:contentDescription="@string/app_name" />
+
+        <LinearLayout
+            android:id="@+id/dnsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:spacing="8dp">
+
+            <TextView
+                android:id="@+id/textDnsLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/text_dns_mode"
+                android:textAppearance="?attr/labelMedium"
+                android:textColor="?attr/colorOnSurfaceVariant" />
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupDns"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:selectionRequired="true"
+                app:singleSelection="true"
+                app:chipSpacing="8dp">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipDnsCloudflare"
+                    style="@style/Widget.Material3.Chip.Assist"
+                    android:text="@string/text_cloudflare_dns"
+                    android:checked="true" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipDnsCustom"
+                    style="@style/Widget.Material3.Chip.Assist"
+                    android:text="Custom DNS" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipDnsAuto"
+                    style="@style/Widget.Material3.Chip.Assist"
+                    android:text="Auto" />
+            </com.google.android.material.chip.ChipGroup>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/buttonToggleTunnel"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="@string/action_start_tunnel"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:icon="@drawable/ic_baseline_play_arrow_24"
+            android:iconTint="?attr/colorOnPrimary"
+            android:textAllCaps="false"
+            android:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Button" />
+
+        <Button
+            android:id="@+id/buttonDetails"
+            style="@style/Widget.TunPixel.Button.Tertiary"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="@string/text_tunnel_details"
+            android:icon="@drawable/ic_baseline_info_24"
+            android:textAllCaps="false"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center|bottom"
+        android:layout_marginBottom="24dp"
+        android:indeterminateTint="?attr/colorPrimary"
+        android:visibility="gone" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

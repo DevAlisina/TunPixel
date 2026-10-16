@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorBackground"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:spacing="24dp"
+    tools:context=".BinaryDownloadActivity">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorSurface"
+        app:title="Downloading Binary"
+        app:navigationIcon="@drawable/ic_baseline_arrow_back_24"
+        app:layout_marginBottom="16dp" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:layout_marginBottom="16dp"
+        android:indeterminate="false"
+        android:max="100"
+        android:progressTint="?attr/colorPrimary" />
+
+    <TextView
+        android:id="@+id/textStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?attr/bodyMedium"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:gravity="center_horizontal" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:spacing="16dp">
+
+        <Button
+            android:id="@+id/buttonDownload"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="120dp"
+            android:layout_height="48dp"
+            android:text="Download"
+            android:icon="@drawable/ic_baseline_download_24"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/buttonDone"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="120dp"
+            android:layout_height="48dp"
+            android:text="Done"
+            android:icon="@drawable/ic_baseline_check_circle_24"
+            android:textAllCaps="false"
+            android:visibility="gone" />
+    </LinearLayout>
+
+</LinearLayout>

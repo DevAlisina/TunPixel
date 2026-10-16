@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorBackground"
+    tools:context=".TunnelDetailsActivity">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorSurface"
+        app:title="@string/text_tunnel_details"
+        app:navigationIcon="@drawable/ic_baseline_arrow_back_24"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:spacing="24dp">
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.TunPixel.CardView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="24dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:spacing="16dp">
+
+                    <TextView
+                        android:id="@+id/textTunnelUrlLabel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Tunnel URL"
+                        android:textAppearance="?attr/titleMedium"
+                        android:textColor="?attr/colorOnSurface" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:spacing="8dp">
+
+                        <TextView
+                            android:id="@+id/textTunnelUrl"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textAppearance="?attr/bodyMedium"
+                            android:textColor="?attr/colorPrimaryContainer"
+                            android:isTextSelectable="true" />
+
+                        <ImageButton
+                            android:id="@+id/buttonCopyUrl"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:src="@drawable/ic_baseline_content_copy_24"
+                            android:contentDescription="Copy URL" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/textTunnelHostnameLabel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Hostname"
+                        android:textAppearance="?attr/titleMedium"
+                        android:textColor="?attr/colorOnSurface" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:spacing="8dp">
+
+                        <TextView
+                            android:id="@+id/textTunnelHostname"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textAppearance="?attr/bodyMedium"
+                            android:textColor="?attr/colorPrimaryContainer"
+                            android:isTextSelectable="true" />
+
+                        <ImageButton
+                            android:id="@+id/buttonCopyHostname"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:src="@drawable/ic_baseline_content_copy_24"
+                            android:contentDescription="Copy hostname" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/textDnsMode"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="DNS: Cloudflare"
+                        android:textAppearance="?attr/labelMedium"
+                        android:textColor="?attr/colorOnSurfaceVariant" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <ImageView
+                android:id="@+id/imageQrCode"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:layout_gravity="center_horizontal"
+                android:contentDescription="QR Code" />
+
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

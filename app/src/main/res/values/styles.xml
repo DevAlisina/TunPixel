@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Application theme. -->
+    <style name="Theme.TunPixel" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/color_primary</item>
+        <item name="colorOnPrimary">@color/color_on_primary</item>
+        <item name="colorSecondary">@color/color_secondary</item>
+        <item name="colorOnSecondary">@color/color_on_secondary</item>
+        <item name="colorTertiary">@color/color_tertiary</item>
+        <item name="colorOnTertiary">@color/color_on_tertiary</item>
+        <item name="colorError">@color/color_error</item>
+        <item name="colorOnError">@color/color_on_error</item>
+        <item name="android:statusBarColor">?attr/colorSurface</item>
+        <item name="android:navigationBarColor">?attr/colorSurface</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
+    <style name="Theme.TunPixel.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.TunPixel.AppBarOverlay" parent="ThemeOverlay.Material3.Dark.ActionBar" />
+
+    <style name="Theme.TunPixel.PopupOverlay" parent="ThemeOverlay.Material3.Light" />
+
+    <!-- Splash screen theme -->
+    <style name="Theme.TunPixel.SplashScreen" parent="Theme.Material3.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/color_primary</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_tunnel_splash</item>
+        <item name="windowSplashScreenAnimationDuration">500</item>
+        <item name="postSplashScreenTheme">@style/Theme.TunPixel</item>
+    </style>
+
+    <!-- Custom button style -->
+    <style name="Widget.TunPixel.Button.Tertiary" parent="Widget.Material3.Button">
+        <item name="android:backgroundTint">@color/color_tertiary_container</item>
+        <item name="android:textColor">@color/color_on_tertiary_container</item>
+        <item name="android:padding">16dp</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <!-- Card style -->
+    <style name="Widget.TunPixel.CardView" parent="Widget.Material3.CardView">
+        <item name="android:strokeColor">@color/color_outline_variant</item>
+        <item name="android:strokeWidth">1dp</item>
+        <item name="android:cornerRadius">16dp</item>
+    </style>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Strings -->
+    <string name="app_name">TunPixel</string>
+    <string name="action_start_tunnel">Start Tunnel</string>
+    <string name="action_stop_tunnel">Stop Tunnel</string>
+    <string name="action_download_binary">Download Binary</string>
+    <string name="text_no_binary">No binary available</string>
+    <string name="text_dns_mode">DNS Mode:</string>
+    <string name="text_cloudflare_dns">Cloudflare DNS</string>
+    <string name="text_using_edge">Using edge: </string>
+    <string name="text_tunnel_running">Tunnel Running...</string>
+    <string name="text_tunnel_stopped">Tunnel Stopped</string>
+    <string name="text_quick_tunnel">Quick Tunnel</string>
+    <string name="text_tunnel_details">Tunnel Details</string>
+    <string name="text_copied">Copied!</string>
+    <string name="text_closing">Closing...</string>
+    <string name="text_ready">Ready</string>
+
+    <!-- DNS mode strings -->
+    <string-array name="dns_modes">
+        <item>Cloudflare DNS</item>
+        <item>Custom DNS</item>
+        <item>Auto</item>
+    </string-array>
