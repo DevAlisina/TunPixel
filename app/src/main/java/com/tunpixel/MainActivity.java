@@ -132,10 +132,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         updateUiState(true, true);
-        tunnelManager.startTunnel("http://localhost:8080");
-
-        // Wait and check if tunnel started
         new Thread(() -> {
+            tunnelManager.startTunnel("http://localhost:8080");
+            // Wait and check if tunnel started
             try {
                 Thread.sleep(3000);
                 runOnUiThread(() -> {
