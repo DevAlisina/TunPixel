@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
 
         // DNS mode chips
         chipGroupDns.setOnCheckedChangeListener((group, checkedId) -> {
-            if (checkedId != ChipGroup.FLAG_CHECKED_CHANGED) {
+            if (checkedId != View.NO_ID) {
                 String mode;
                 if (checkedId == R.id.chipDnsCloudflare) {
                     mode = "cloudflare";
