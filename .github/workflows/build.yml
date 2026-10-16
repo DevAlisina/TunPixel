@@ -26,11 +26,6 @@ jobs:
     - name: Validate Gradle Wrapper
       uses: gradle/wrapper-validation-action@v1
 
-    - name: Build with Gradle
-      uses: gradle/gradle-build-action@v3
-      with:
-        arguments: assembleDebug
-
     - name: Compute build number
       id: build
       run: |
@@ -38,15 +33,34 @@ jobs:
         echo "number=$BUILD" >> "$GITHUB_OUTPUT"
         echo "tag=build-$BUILD" >> "$GITHUB_OUTPUT"
 
+    - name: Decode signing keystore (if configured)
+      env:
+        KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+      run: |
+        if [ -n "$KEYSTORE_BASE64" ]; then
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/tunpixel.keystore"
+          echo "KEYSTORE_PATH=$RUNNER_TEMP/tunpixel.keystore" >> "$GITHUB_ENV"
+          echo "Using release keystore from secrets."
+        else
+          echo "No KEYSTORE_BASE64 secret found; falling back to debug signing."
+        fi
+
+    - name: Build release APK
+      env:
+        KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+      run: ./gradlew assembleRelease
+
     - name: Rename APK
       if: github.event_name != 'pull_request'
-      run: cp app/build/outputs/apk/debug/app-debug.apk "TunPixel-${{ steps.build.outputs.number }}.apk"
+      run: cp app/build/outputs/apk/release/app-release.apk "TunPixel-${{ steps.build.outputs.number }}.apk"
 
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
       with:
-        name: TunPixel-apk-${{ steps.build.outputs.number }}
-        path: app/build/outputs/apk/debug/app-debug.apk
+        name: TunPixel-release-apk-${{ steps.build.outputs.number }}
+        path: app/build/outputs/apk/release/app-release.apk
 
     - name: Create Release
       if: github.event_name != 'pull_request'

@@ -6,6 +6,9 @@ android {
     namespace 'com.tunpixel'
     compileSdk 34
 
+    def ksPath = System.getenv("KEYSTORE_PATH")
+    def hasKeystore = ksPath != null && !ksPath.trim().isEmpty() && file(ksPath).exists()
+
     defaultConfig {
         applicationId "com.tunpixel"
         minSdk 24
@@ -16,12 +19,35 @@ android {
         vectorDrawables.useSupportLibrary = true
     }
 
+    signingConfigs {
+        release {
+            if (hasKeystore) {
+                storeFile file(ksPath)
+                storePassword System.getenv("KEYSTORE_PASSWORD")
+                keyAlias System.getenv("KEY_ALIAS")
+                keyPassword System.getenv("KEY_PASSWORD")
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            shrinkResources false
+            if (hasKeystore) {
+                signingConfig signingConfigs.release
+            } else {
+                signingConfig signingConfigs.debug
+            }
+        }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
 
-    packagingOptions {
+    packaging {
         resources.excludes += ['META-INF/*.kotlin_module']
     }
 }
