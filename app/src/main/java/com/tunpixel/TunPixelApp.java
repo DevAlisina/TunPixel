@@ -5,7 +5,6 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.res.Configuration;
 import android.os.Build;
-import android.util.Log;
 
 public class TunPixelApp extends Application {
     private static final String TAG = "TunPixelApp";
@@ -16,7 +15,8 @@ public class TunPixelApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(TAG, "TunPixelApp created");
+        LogStore.init(this);
+        LogStore.i(TAG, "TunPixelApp created");
         tunnelManager = new TunnelManager(this);
         createNotificationChannels();
     }

@@ -1,7 +1,5 @@
 package com.tunpixel.network;
 
-import android.util.Log;
-
 import com.tunpixel.TunnelManager;
 
 import java.io.BufferedReader;
@@ -19,8 +17,8 @@ public class TunnelApiClient {
     private static volatile TunnelResponse cachedResponse;
 
     public static TunnelResponse requestQuickTunnel(String localUrl) {
-        Log.d(TAG, "Requesting quick tunnel from TryCloudflare API");
-        Log.d(TAG, "Local URL: " + localUrl);
+        LogStore.d(TAG, "Requesting quick tunnel from TryCloudflare API");
+        LogStore.d(TAG, "Local URL: " + localUrl);
 
         // The TryCloudflare API is managed by cloudflared itself via --quick-service flag
         // We still make a request to get metadata, but the actual tunnel is established by cloudflared
@@ -37,7 +35,7 @@ public class TunnelApiClient {
             connection.setDoOutput(true);
 
             String jsonInputString = String.format("{\"url\":\"%s\"}", localUrl);
-            Log.d(TAG, "Request body: " + jsonInputString);
+            LogStore.d(TAG, "Request body: " + jsonInputString);
 
             try (DataOutputStream wr = new DataOutputStream(connection.getOutputStream())) {
                 wr.write(jsonInputString.getBytes(StandardCharsets.UTF_8));
@@ -45,7 +43,7 @@ public class TunnelApiClient {
             }
 
             int responseCode = connection.getResponseCode();
-            Log.d(TAG, "Response code: " + responseCode);
+            LogStore.d(TAG, "Response code: " + responseCode);
 
             BufferedReader br;
             if (responseCode >= 200 && responseCode < 300) {
@@ -60,12 +58,12 @@ public class TunnelApiClient {
                 response.append(responseLine.trim());
             }
 
-            Log.d(TAG, "Response body: " + response.toString());
+            LogStore.d(TAG, "Response body: " + response.toString());
 
             return parseTunnelResponse(response.toString());
 
         } catch (Exception e) {
-            Log.e(TAG, "Error requesting tunnel", e);
+            LogStore.e(TAG, "Error requesting tunnel", e);
             return new TunnelResponse(false, null, null, null, null, "Error: " + e.getMessage());
         }
     }
@@ -86,7 +84,7 @@ public class TunnelApiClient {
 
             return new TunnelResponse(success, tunnelUrl, hostname, token, secret, null);
         } catch (Exception e) {
-            Log.e(TAG, "Error parsing tunnel response", e);
+            LogStore.e(TAG, "Error parsing tunnel response", e);
             return new TunnelResponse(false, null, null, null, null, "Parse error: " + e.getMessage());
         }
     }

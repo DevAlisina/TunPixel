@@ -2,7 +2,6 @@ package com.tunpixel;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -17,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.splashscreen.SplashScreen;
 
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     // UI components
+    private MaterialToolbar toolbar;
     private TextView textStatus;
     private Button buttonToggleTunnel;
     private Button buttonDetails;
@@ -61,12 +62,28 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize views
         initViews();
+        setupToolbar();
         setupListeners();
         checkBinaryState();
         updateUiState(false, false);
+
+        LogStore.i(TAG, "MainActivity shown");
+    }
+
+    private void setupToolbar() {
+        toolbar.inflateMenu(R.menu.menu_main);
+        toolbar.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.action_logs) {
+                LogStore.d(TAG, "Opening logs screen");
+                startActivity(new Intent(this, LogsActivity.class));
+                return true;
+            }
+            return false;
+        });
     }
 
     private void initViews() {
+        toolbar = findViewById(R.id.toolbar);
         textStatus = findViewById(R.id.textStatus);
         buttonToggleTunnel = findViewById(R.id.buttonToggleTunnel);
         buttonDetails = findViewById(R.id.buttonDetails);
@@ -94,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
                     mode = "cloudflare";
                 }
                 tunnelManager.setDnsMode(mode);
-                Log.d(TAG, "DNS mode selected: " + mode);
+                LogStore.i(TAG, "DNS mode selected: " + mode);
             }
         });
     }

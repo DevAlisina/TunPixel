@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
-import android.util.Log;
 
 import com.tunpixel.network.TunnelApiClient;
 
@@ -31,7 +30,11 @@ public class TunnelManager {
 
     public TunnelManager(Context context) {
         this.context = context;
+        LogStore.i(TAG, "TunnelManager created");
         this.cloudflaredBinary = resolveBundledBinary(context);
+        if (cloudflaredBinary != null) {
+            LogStore.i(TAG, "Bundled binary found: " + cloudflaredBinary.getAbsolutePath() + " [exists=" + cloudflaredBinary.exists() + "]");
+        }
     }
 
     /**
@@ -101,12 +104,12 @@ public class TunnelManager {
 
     public void startTunnel(String localUrl) {
         if (isRunning()) {
-            Log.w(TAG, "Tunnel already running");
+            LogStore.d(TAG, "Tunnel already running");
             return;
         }
 
         if (cloudflaredBinary == null || !cloudflaredBinary.exists()) {
-            Log.e(TAG, "Binary not found");
+            LogStore.e(TAG, "Binary not found");
             return;
         }
 
@@ -117,7 +120,7 @@ public class TunnelManager {
         // TryCloudflare API request to get tunnel details
         TunnelApiClient.TunnelResponse response = TunnelApiClient.requestQuickTunnel(localUrl);
         if (response == null || !response.success) {
-            Log.e(TAG, "Failed to create tunnel via TryCloudflare API");
+            LogStore.e(TAG, "Failed to create tunnel via TryCloudflare API");
             return;
         }
 
@@ -125,6 +128,9 @@ public class TunnelManager {
         tunnelHostname = response.hostname;
         tunnelToken = response.token;
         tunnelSecret = response.secret;
+
+        LogStore.i(TAG, "API response: success=" + response.success + ", hostname=" + response.hostname);
+        LogStore.d(TAG, "Parsed tunnel fields: url=" + tunnelUrl + ", hostname=" + tunnelHostname);
 
         // Build process command with DNS override
         ProcessBuilder pb = new ProcessBuilder();
@@ -163,6 +169,13 @@ public class TunnelManager {
             "--edge", "2a06:98c0::/29"
         );
 
+        // Log the full command line so the logs screen shows exactly what runs.
+        StringBuilder cmdLog = new StringBuilder("exec: " + cloudflaredBinary.getAbsolutePath());
+        for (String arg : pb.command()) {
+            if (arg != null) cmdLog.append(' ').append(arg);
+        }
+        LogStore.d(TAG, cmdLog.toString());
+
         // DNS environment variables to fix resolv.conf issue on Android
         Map<String, String> env = pb.environment();
         env.put("GODEBUG", "netdns=cgo");
@@ -172,6 +185,8 @@ public class TunnelManager {
         if ("custom".equals(dnsMode)) {
             env.put("CLOUDFLARED_DNS", "1.1.1.1,1.0.0.1");
         }
+        LogStore.d(TAG, "env: GODEBUG=netdns=cgo ANDROID_DATA=" + context.getCacheDir().getParent()
+                + " RES_OPTIONS=ndots:2 timeout:1 attempts:2" + ("custom".equals(dnsMode) ? " CLOUDFLARED_DNS=1.1.1.1,1.0.0.1" : ""));
 
         pb.redirectErrorStream(true);
 
@@ -179,6 +194,7 @@ public class TunnelManager {
             Process process = pb.start();
             tunnelProcess = process;
             isRunning = true;
+            LogStore.i(TAG, "cloudflared process started");
 
             // Start log reader thread
             new Thread(() -> {
@@ -187,18 +203,18 @@ public class TunnelManager {
                         new java.io.BufferedReader(new java.io.InputStreamReader(process.getInputStream()));
                     String line;
                     while ((line = reader.readLine()) != null) {
-                        Log.d(TAG, "cloudflared: " + line);
+                        LogStore.d("cloudflared", line);
                         if (line.contains("hostname")) {
                             // Parse tunnel URL from output if needed
                             parseTunnelOutput(line);
                         }
                     }
                 } catch (Exception e) {
-                    Log.e(TAG, "Error reading cloudflared output", e);
+                    LogStore.e(TAG, "Error reading cloudflared output", e);
                 }
             }).start();
 
-            Log.i(TAG, "Tunnel started: " + tunnelUrl);
+            LogStore.i(TAG, "Tunnel started: " + tunnelUrl);
 
             // Start foreground service
             Intent serviceIntent = new Intent(context, TunnelService.class);
@@ -212,7 +228,7 @@ public class TunnelManager {
             }
 
         } catch (Exception e) {
-            Log.e(TAG, "Failed to start tunnel", e);
+            LogStore.e(TAG, "Failed to start tunnel", e);
         }
     }
 
@@ -222,7 +238,7 @@ public class TunnelManager {
             try {
                 tunnelProcess.waitFor(5000, java.util.concurrent.TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
-                Log.e(TAG, "Interrupted waiting for process", e);
+                LogStore.e(TAG, "Interrupted waiting for process", e);
             }
             tunnelProcess.destroyForcibly();
         }
@@ -235,7 +251,7 @@ public class TunnelManager {
         serviceIntent.setAction(TunnelService.ACTION_STOP_TUNNEL);
         context.stopService(serviceIntent);
 
-        Log.i(TAG, "Tunnel stopped");
+        LogStore.i(TAG, "Tunnel stopped");
     }
 
     private void parseTunnelOutput(String line) {

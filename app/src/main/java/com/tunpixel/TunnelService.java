@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.pm.ServiceInfo;
 import android.os.Build;
 import android.os.IBinder;
-import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.ServiceCompat;
@@ -27,18 +26,18 @@ public class TunnelService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(TAG, "TunnelService created");
+        LogStore.d(TAG, "TunnelService created");
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent == null) {
-            Log.e(TAG, "Received null intent");
+            LogStore.e(TAG, "Received null intent");
             return START_NOT_STICKY;
         }
 
         String action = intent.getAction();
-        Log.d(TAG, "Service action: " + action);
+        LogStore.d(TAG, "Service action: " + action);
 
         switch (action) {
             case ACTION_START_TUNNEL:
@@ -109,7 +108,7 @@ public class TunnelService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, "TunnelService destroyed");
+        LogStore.d(TAG, "TunnelService destroyed");
     }
 
     @Override

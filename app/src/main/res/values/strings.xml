@@ -18,6 +18,14 @@
     <string name="text_closing">Closing...</string>
     <string name="text_ready">Ready</string>
 
+    <!-- Logs screen -->
+    <string name="text_logs">Logs</string>
+    <string name="action_copy_logs">Copy logs</string>
+    <string name="action_clear_logs">Clear logs</string>
+    <string name="text_logs_empty">No logs yet. Start the tunnel to see events here.</string>
+    <string name="text_logs_copied">Logs copied to clipboard</string>
+    <string name="text_logs_cleared">Logs cleared</string>
+
     <!-- DNS mode strings -->
     <string-array name="dns_modes">
         <item>Cloudflare DNS</item>
