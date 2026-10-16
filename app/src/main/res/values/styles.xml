@@ -48,4 +48,3 @@
         <item name="android:cornerRadius">@dimen/card_corner_radius</item>
     </style>
 </resources>
-</resources>
