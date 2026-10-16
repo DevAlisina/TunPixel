@@ -1,6 +1,8 @@
 .gradle/
 build/
 app/build/
+# cloudflared binaries are fetched from the official release by CI, not committed
+app/src/main/jniLibs/
 local.properties
 *.iml
 .idea/

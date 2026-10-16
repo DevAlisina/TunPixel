@@ -65,6 +65,13 @@ android {
     }
 
     packaging {
+        // cloudflared is shipped as jniLibs/<abi>/libcloudflared.so so the OS extracts
+        // it to the read-only, executable nativeLibraryDir (the W^X workaround for
+        // Android 10+, which forbids exec() from the app's writable data dir).
+        jniLibs {
+            useLegacyPackaging true
+            keepDebugSymbols += '**/libcloudflared.so'
+        }
         resources.excludes += ['META-INF/*.kotlin_module']
     }
 }

@@ -31,6 +31,19 @@ public class TunnelManager {
 
     public TunnelManager(Context context) {
         this.context = context;
+        this.cloudflaredBinary = resolveBundledBinary(context);
+    }
+
+    /**
+     * Returns the cloudflared executable bundled in the APK as
+     * jniLibs/&lt;abi&gt;/libcloudflared.so. Android extracts it to the read-only,
+     * executable nativeLibraryDir during install. That is the only location an app
+     * targeting API 29+ may exec() from, because the writable app data dir is
+     * mounted noexec under the W^X policy.
+     */
+    private static File resolveBundledBinary(Context context) {
+        File binary = new File(context.getApplicationInfo().nativeLibraryDir, "libcloudflared.so");
+        return binary.exists() ? binary : null;
     }
 
     public File getBinaryPath() {
