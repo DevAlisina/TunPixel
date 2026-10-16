@@ -14,7 +14,9 @@ android {
 
     defaultConfig {
         applicationId "com.tunpixel"
-        minSdk 24
+        // Keep this below 24: AGP silently disables v1 (JAR) signing at minSdk >= 24,
+        // and a v2-only APK is rejected by some OEM installers with "problem parsing the package".
+        minSdk 23
         targetSdk 34
         versionCode 1
         versionName "1.0"
