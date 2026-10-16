@@ -13,7 +13,9 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class TunnelManager {
@@ -134,43 +136,45 @@ public class TunnelManager {
 
         // Build process command with DNS override
         ProcessBuilder pb = new ProcessBuilder();
-        pb.command(
-            cloudflaredBinary.getAbsolutePath(),
-            "tunnel",
-            "--url", localUrl,
-            "--quick-service", TunnelApiClient.QUICK_SERVICE_URL,
-            "--edge", "172.65.251.0/24", // Cloudflare edge IPs
-            "--edge", "104.16.0.0/12",
-            "--edge", "104.24.0.0/14",
-            "--edge", "104.32.0.0/13",
-            "--edge", "104.40.0.0/14",
-            "--edge", "104.48.0.0/13",
-            "--edge", "108.162.192.0/21",
-            "--edge", "108.162.200.0/21",
-            "--edge", "108.162.208.0/21",
-            "--edge", "108.162.216.0/21",
-            "--edge", "108.162.224.0/21",
-            "--edge", "108.162.232.0/21",
-            "--edge", "162.159.192.0/22",
-            "--edge", "162.159.200.0/22",
-            "--edge", "162.159.208.0/22",
-            "--edge", "162.159.224.0/22",
-            "--edge", "172.64.0.0/13",
-            "--edge", "173.245.48.0/20",
-            "--edge", "190.93.240.0/20",
-            "--edge", "197.234.240.0/22",
-            "--edge", "198.41.128.0/17",
-            "--edge", "2400:cb00::/32",
-            "--edge", "2405:8100::/32",
-            "--edge", "2405:b500::/32",
-            "--edge", "2606:4700::/32",
-            "--edge", "2803:f800::/32",
-            "--edge", "2c0f:f248::/32",
-            "--edge", "2a06:98c0::/29"
-        );
+        List<String> command = new ArrayList<>();
+        command.add(cloudflaredBinary.getAbsolutePath());
+        command.add("tunnel");
+
+        // DNS resolver address to prevent Go from querying [::1]:53 on Android
+        String[] dnsServers;
+        if ("custom".equals(dnsMode)) {
+            dnsServers = new String[]{"1.1.1.1:53", "1.0.0.1:53"};
+        } else if ("auto".equals(dnsMode)) {
+            dnsServers = new String[]{"1.1.1.1:53", "8.8.8.8:53"};
+        } else {
+            dnsServers = new String[]{"1.1.1.1:53", "1.0.0.1:53"};
+        }
+
+        if (tunnelToken != null && !tunnelToken.isEmpty()) {
+            command.add("run");
+            command.add("--token");
+            command.add(tunnelToken);
+            command.add("--url");
+            command.add(localUrl);
+            for (String dns : dnsServers) {
+                command.add("--dns-resolver-addrs");
+                command.add(dns);
+            }
+        } else {
+            command.add("--url");
+            command.add(localUrl);
+            command.add("--quick-service");
+            command.add(TunnelApiClient.QUICK_SERVICE_URL);
+            for (String dns : dnsServers) {
+                command.add("--dns-resolver-addrs");
+                command.add(dns);
+            }
+        }
+
+        pb.command(command);
 
         // Log the full command line so the logs screen shows exactly what runs.
-        StringBuilder cmdLog = new StringBuilder("exec: " + cloudflaredBinary.getAbsolutePath());
+        StringBuilder cmdLog = new StringBuilder("exec:");
         for (String arg : pb.command()) {
             if (arg != null) cmdLog.append(' ').append(arg);
         }

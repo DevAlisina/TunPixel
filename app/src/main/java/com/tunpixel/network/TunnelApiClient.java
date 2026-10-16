@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import android.util.Base64;
 
 public class TunnelApiClient {
     private static final String TAG = "TunnelApiClient";
@@ -81,6 +82,8 @@ public class TunnelApiClient {
             String token = extractJsonValue(json, "token");
             String secret = extractJsonValue(json, "secret");
             String tunnelUrl = extractJsonValue(json, "tunnel_url");
+            String id = extractJsonValue(json, "id");
+            String accountTag = extractJsonValue(json, "account_tag");
             String error = extractJsonValue(json, "error");
             if (error == null || error.isEmpty()) {
                 error = extractJsonValue(json, "message");
@@ -88,6 +91,16 @@ public class TunnelApiClient {
 
             if (tunnelUrl == null && hostname != null && !hostname.isEmpty()) {
                 tunnelUrl = "https://" + hostname;
+            }
+
+            // Generate token from credentials if token is not directly provided
+            if ((token == null || token.isEmpty()) && accountTag != null && id != null && secret != null) {
+                try {
+                    String tokenJson = String.format("{\"a\":\"%s\",\"t\":\"%s\",\"s\":\"%s\"}", accountTag, id, secret);
+                    token = Base64.encodeToString(tokenJson.getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
+                } catch (Exception e) {
+                    LogStore.e(TAG, "Error generating token", e);
+                }
             }
 
             if (error != null && !error.isEmpty()) {
