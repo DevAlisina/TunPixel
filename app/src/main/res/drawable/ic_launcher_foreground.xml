@@ -1,16 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <group
-        android:scaleX="3"
-        android:scaleY="3"
-        android:translateX="18"
-        android:translateY="18">
-        <path
-            android:fillColor="#FFFFFFFF"
-            android:pathData="M12,2L12,10M8.59,5 15.41,5M12,20c-4.41,0 -8,-3.59 -8,-8s3.59,-8 8,-8 8,3.59 8,8 -3.59,8 -8,8z" />
-    </group>
+
+    <!-- Outer Tunnel Portal Ring (Material Glow) -->
+    <path
+        android:pathData="M54,26 C69.46,26 82,38.54 82,54 C82,69.46 69.46,82 54,82 C38.54,82 26,69.46 26,54 C26,38.54 38.54,26 54,26 Z"
+        android:strokeWidth="4">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:startX="26"
+                android:startY="26"
+                android:endX="82"
+                android:endY="82"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FFFFB784" />
+                <item android:offset="1.0" android:color="#FFD0BCFF" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Mid Tunnel Ring (Depth perspective) -->
+    <path
+        android:pathData="M54,34 C65.05,34 74,42.95 74,54 C74,65.05 65.05,74 54,74 C42.95,74 34,65.05 34,54 C34,42.95 42.95,34 54,34 Z"
+        android:strokeColor="#66FFFFFF"
+        android:strokeWidth="2.5" />
+
+    <!-- Center Cloud / Tunnel Core -->
+    <path
+        android:pathData="M64.5,50.5 C63.9,47.8 61.5,45.8 58.6,45.8 C56.3,45.8 54.3,47.1 53.3,49 C50.9,49.2 49,51.3 49,53.8 C49,56.4 51.1,58.5 53.8,58.5 L64.2,58.5 C66.4,58.5 68.2,56.7 68.2,54.5 C68.2,52.4 66.5,50.7 64.5,50.5 Z"
+        android:fillColor="#FFFFFFFF" />
+
+    <!-- Modern Pixel Sparkles / Nodes (TunPixel Identity) -->
+    <!-- Center lightning / speed beam through tunnel -->
+    <path
+        android:pathData="M51,46 L47,53 L53,53 L49,62 L57,51 L51,51 Z"
+        android:fillColor="#FFFFB784" />
+
+    <!-- Futuristic Orbiting Connection Nodes -->
+    <path
+        android:pathData="M54,20 A3,3 0 1,1 54,20.01"
+        android:fillColor="#FFFFFFFF" />
+    <path
+        android:pathData="M88,54 A3,3 0 1,1 88,54.01"
+        android:fillColor="#FFFFB784" />
+    <path
+        android:pathData="M54,88 A3,3 0 1,1 54,88.01"
+        android:fillColor="#FFD0BCFF" />
+    <path
+        android:pathData="M20,54 A3,3 0 1,1 20,54.01"
+        android:fillColor="#FFFFFFFF" />
+
 </vector>

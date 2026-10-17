@@ -1,11 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="48dp"
     android:height="48dp"
-    android:viewportWidth="24"
-    android:viewportHeight="24"
-    android:tint="?attr/colorOnPrimary">
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+
+    <!-- Tunnel Portal Outer Ring -->
     <path
-        android:fillColor="@android:color/white"
-        android:pathData="M12,2L12,10M8.59,5 15.41,5M12,20c-4.41,0 -8,-3.59 -8,-8s3.59,-8 8,-8 8,3.59 8,8 -3.59,8 -8,8z"/>
+        android:pathData="M24,8 C32.84,8 40,15.16 40,24 C40,32.84 32.84,40 24,40 C15.16,40 8,32.84 8,24 C8,15.16 15.16,8 24,8 Z"
+        android:strokeWidth="3">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:startX="8"
+                android:startY="8"
+                android:endX="40"
+                android:endY="40"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FFFFB784" />
+                <item android:offset="1.0" android:color="#FFFFFFFF" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Cloud Tunnel Core -->
+    <path
+        android:pathData="M31,21.5 C30.5,19.5 28.7,18 26.5,18 C24.7,18 23.2,19 22.4,20.5 C20.5,20.7 19,22.3 19,24.3 C19,26.4 20.6,28 22.8,28 L30.8,28 C32.5,28 34,26.5 34,24.8 C34,23.1 32.6,21.7 31,21.5 Z"
+        android:fillColor="#FFFFFFFF" />
+
+    <!-- Center Pulse Beam -->
+    <path
+        android:pathData="M22,18 L18,24 L23,24 L20,31 L27,22 L22,22 Z"
+        android:fillColor="#FFFFB784" />
+
 </vector>
