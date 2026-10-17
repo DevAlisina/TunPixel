@@ -31,9 +31,21 @@
         </activity>
 
         <activity
+            android:name=".TunnelDetailsActivity"
+            android:exported="false"
+            android:label="@string/text_tunnel_details"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".BinaryDownloadActivity"
+            android:exported="false"
+            android:label="@string/action_download_binary" />
+
+        <activity
             android:name=".LogsActivity"
             android:exported="false"
-            android:label="@string/text_logs" />
+            android:label="@string/text_logs"
+            android:parentActivityName=".MainActivity" />
 
         <service
             android:name=".TunnelService"

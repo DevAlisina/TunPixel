@@ -8,7 +8,7 @@
     android:background="?attr/colorSurface"
     tools:context=".MainActivity">
 
-    <!-- Top App Bar -->
+    <!-- Top App Bar with Flat Modern Clean Look -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -16,12 +16,14 @@
         android:background="?attr/colorSurface"
         android:elevation="0dp"
         app:title="TunPixel"
-        app:titleCentered="true"
+        app:titleCentered="false"
         app:titleTextAppearance="?attr/textAppearanceTitleLarge"
+        app:navigationIcon="@drawable/ic_shield_check_24"
+        app:navigationIconTint="?attr/colorPrimary"
         app:popupTheme="@style/ThemeOverlay.Material3.Light" />
 
     <!-- Main scrollable content -->
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="?attr/actionBarSize"
@@ -34,15 +36,15 @@
             android:orientation="vertical"
             android:gravity="center_horizontal"
             android:paddingHorizontal="24dp"
-            android:paddingTop="32dp"
-            android:paddingBottom="32dp">
+            android:paddingTop="28dp"
+            android:paddingBottom="36dp">
 
-            <!-- Hero Icon -->
+            <!-- Hero Modern Flat Circular Indicator -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardIcon"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                app:cardCornerRadius="36dp"
+                android:layout_width="128dp"
+                android:layout_height="128dp"
+                app:cardCornerRadius="64dp"
                 app:cardBackgroundColor="?attr/colorPrimaryContainer"
                 app:cardElevation="0dp"
                 app:strokeWidth="0dp">
@@ -52,7 +54,7 @@
                     android:layout_width="64dp"
                     android:layout_height="64dp"
                     android:layout_gravity="center"
-                    android:src="@drawable/ic_baseline_cloud_24"
+                    android:src="@drawable/ic_modern_cloud_24"
                     android:tint="?attr/colorOnPrimaryContainer"
                     android:contentDescription="@string/app_name" />
 
@@ -65,7 +67,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:text="@string/text_tunnel_stopped"
-                android:textAppearance="?attr/textAppearanceHeadlineSmall"
+                android:textAppearance="?attr/textAppearanceHeadlineMedium"
+                android:fontFamily="sans-serif-medium"
                 android:gravity="center"
                 android:textColor="?attr/colorOnSurface" />
 
@@ -85,26 +88,26 @@
                 android:id="@+id/progressBar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="20dp"
                 android:visibility="gone"
                 app:trackCornerRadius="4dp"
                 app:indicatorColor="?attr/colorPrimary"
                 app:trackColor="?attr/colorSurfaceVariant"
                 android:indeterminate="true" />
 
-            <!-- Spacer -->
+            <!-- Flexible Space to push controls cleanly -->
             <Space
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:minHeight="32dp" />
+                android:minHeight="40dp" />
 
-            <!-- Status indicator card (shown when running) -->
+            <!-- Flat Card for Active Session Status -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardStatus"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginBottom="16dp"
                 android:visibility="gone"
                 app:cardCornerRadius="20dp"
                 app:cardBackgroundColor="?attr/colorSecondaryContainer"
@@ -119,54 +122,72 @@
                     android:padding="16dp">
 
                     <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:src="@drawable/ic_baseline_check_circle_24"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_shield_check_24"
                         android:tint="?attr/colorTertiary"
                         android:contentDescription="@null" />
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:layout_marginStart="12dp"
-                        android:text="@string/text_tunnel_active_hint"
-                        android:textAppearance="?attr/textAppearanceLabelLarge"
-                        android:textColor="?attr/colorOnSecondaryContainer" />
+                        android:layout_marginStart="14dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/text_tunnel_running"
+                            android:textAppearance="?attr/textAppearanceLabelLarge"
+                            android:textColor="?attr/colorOnSecondaryContainer" />
+
+                        <TextView
+                            android:id="@+id/textLiveUrlHint"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="@string/text_tunnel_active_hint"
+                            android:textAppearance="?attr/textAppearanceBodySmall"
+                            android:textColor="?attr/colorOnSurfaceVariant"
+                            android:singleLine="true"
+                            android:ellipsize="middle" />
+                    </LinearLayout>
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Primary Action Button -->
+            <!-- Primary Action Button (Start / Stop) -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/buttonToggleTunnel"
                 style="@style/Widget.Material3.Button"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginTop="16dp"
+                android:layout_height="58dp"
                 android:text="@string/action_start_tunnel"
                 android:textAllCaps="false"
-                android:textAppearance="?attr/textAppearanceLabelLarge"
+                android:textAppearance="?attr/textAppearanceTitleSmall"
                 app:icon="@drawable/ic_baseline_play_arrow_24"
+                app:iconSize="22dp"
                 app:iconGravity="textStart"
-                app:cornerRadius="16dp" />
+                app:cornerRadius="20dp" />
 
-            <!-- Details Button (visible when tunnel is running) -->
+            <!-- Details Button (Tonal Flat Style) -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/buttonDetails"
                 style="@style/Widget.Material3.Button.TonalButton"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:layout_marginTop="10dp"
+                android:layout_height="54dp"
+                android:layout_marginTop="12dp"
                 android:text="@string/text_tunnel_details"
                 android:textAllCaps="false"
-                android:textAppearance="?attr/textAppearanceLabelLarge"
+                android:textAppearance="?attr/textAppearanceTitleSmall"
                 android:visibility="gone"
-                app:icon="@drawable/ic_baseline_info_24"
+                app:icon="@drawable/ic_round_info_24"
+                app:iconSize="20dp"
                 app:iconGravity="textStart"
-                app:cornerRadius="16dp" />
+                app:cornerRadius="20dp" />
 
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

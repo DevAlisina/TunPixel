@@ -27,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
     private MaterialToolbar toolbar;
     private TextView textStatus;
     private TextView textSubtitle;
+    private TextView textLiveUrlHint;
     private MaterialButton buttonToggleTunnel;
     private MaterialButton buttonDetails;
     private ImageView imageTunnel;
@@ -51,22 +52,29 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // Must run BEFORE super.onCreate(): swaps the Theme.SplashScreen theme for
-        // Theme.TunPixel (postSplashScreenTheme), which AppCompatActivity requires.
         SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         tunnelManager = TunPixelApp.getTunnelManager();
 
-        // Initialize views
         initViews();
         setupToolbar();
         setupListeners();
         checkBinaryState();
-        updateUiState(false, false);
 
         LogStore.i(TAG, "MainActivity shown");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        syncWithCurrentTunnelState();
+    }
+
+    private void syncWithCurrentTunnelState() {
+        boolean running = tunnelManager != null && tunnelManager.isRunning();
+        updateUiState(running, false);
     }
 
     private void setupToolbar() {
@@ -85,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbar);
         textStatus = findViewById(R.id.textStatus);
         textSubtitle = findViewById(R.id.textSubtitle);
+        textLiveUrlHint = findViewById(R.id.textLiveUrlHint);
         buttonToggleTunnel = findViewById(R.id.buttonToggleTunnel);
         buttonDetails = findViewById(R.id.buttonDetails);
         imageTunnel = findViewById(R.id.imageTunnel);
@@ -113,10 +122,14 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        if (tunnelManager.isRunning()) {
+            syncWithCurrentTunnelState();
+            return;
+        }
+
         updateUiState(true, true);
         new Thread(() -> {
             tunnelManager.startTunnel("http://localhost:8080");
-            // Wait and check if tunnel started
             try {
                 Thread.sleep(3000);
                 runOnUiThread(() -> {
@@ -140,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
 
         new Thread(() -> {
             try {
-                Thread.sleep(2000);
+                Thread.sleep(1500);
                 runOnUiThread(() -> updateUiState(false, false));
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -169,8 +182,16 @@ public class MainActivity extends AppCompatActivity {
                 textStatus.setText(R.string.text_tunnel_running);
                 textSubtitle.setText(R.string.text_subtitle_running);
                 buttonToggleTunnel.setText(R.string.action_stop_tunnel);
-                buttonToggleTunnel.setIconResource(R.drawable.ic_baseline_vpn_key_24);
-                imageTunnel.setImageResource(R.drawable.ic_baseline_check_circle_24);
+                buttonToggleTunnel.setIconResource(R.drawable.ic_baseline_stop_24);
+                imageTunnel.setImageResource(R.drawable.ic_shield_check_24);
+
+                String currentUrl = tunnelManager.getTunnelUrl();
+                if (textLiveUrlHint != null && currentUrl != null && !currentUrl.isEmpty()) {
+                    textLiveUrlHint.setText(currentUrl);
+                } else if (textLiveUrlHint != null) {
+                    textLiveUrlHint.setText(R.string.text_tunnel_active_hint);
+                }
+
                 cardStatus.setVisibility(View.VISIBLE);
                 buttonDetails.setVisibility(View.VISIBLE);
             } else {
@@ -178,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
                 textSubtitle.setText(R.string.text_subtitle_ready);
                 buttonToggleTunnel.setText(R.string.action_start_tunnel);
                 buttonToggleTunnel.setIconResource(R.drawable.ic_baseline_play_arrow_24);
-                imageTunnel.setImageResource(R.drawable.ic_baseline_cloud_24);
+                imageTunnel.setImageResource(R.drawable.ic_modern_cloud_24);
                 cardStatus.setVisibility(View.GONE);
                 buttonDetails.setVisibility(View.GONE);
             }
@@ -192,7 +213,6 @@ public class MainActivity extends AppCompatActivity {
             buttonToggleTunnel.setEnabled(false);
         } else {
             buttonToggleTunnel.setEnabled(true);
-            // If binary was already set, ensure it's executable
             setupBinary();
         }
     }
@@ -205,7 +225,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void downloadBinary() {
-        // Start the binary download activity
         Intent intent = new Intent(this, BinaryDownloadActivity.class);
         binaryDownloadLauncher.launch(intent);
     }
