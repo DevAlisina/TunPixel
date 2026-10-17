@@ -25,6 +25,7 @@ public class TunnelManager {
     private File cloudflaredBinary;
     private Process tunnelProcess;
     private boolean isRunning = false;
+    private String localUrl;
     private String tunnelUrl;
     private String tunnelToken;
     private String tunnelHostname;
@@ -105,11 +106,17 @@ public class TunnelManager {
         this.isRunning = process != null && process.isAlive();
     }
 
+    public String getLocalUrl() {
+        return localUrl;
+    }
+
     public void startTunnel(String localUrl) {
         if (isRunning()) {
             LogStore.d(TAG, "Tunnel already running");
             return;
         }
+
+        this.localUrl = localUrl;
 
         if (cloudflaredBinary == null || !cloudflaredBinary.exists()) {
             LogStore.e(TAG, "Binary not found");
@@ -273,6 +280,7 @@ public class TunnelManager {
         tunnelProcess = null;
         isRunning = false;
         tunnelUrl = null;
+        localUrl = null;
 
         // Stop foreground service
         Intent serviceIntent = new Intent(context, TunnelService.class);

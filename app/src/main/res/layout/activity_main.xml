@@ -102,6 +102,36 @@
                 android:layout_weight="1"
                 android:minHeight="40dp" />
 
+            <!-- Internal Port Input -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layoutPort"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:hint="@string/hint_internal_port"
+                app:helperText="@string/helper_internal_port"
+                app:helperTextEnabled="true"
+                app:startIconDrawable="@drawable/ic_baseline_terminal_24"
+                app:prefixText="localhost:"
+                app:endIconMode="clear_text"
+                app:boxCornerRadiusTopStart="16dp"
+                app:boxCornerRadiusTopEnd="16dp"
+                app:boxCornerRadiusBottomStart="16dp"
+                app:boxCornerRadiusBottomEnd="16dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editPort"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:maxLength="5"
+                    android:singleLine="true"
+                    android:maxLines="1"
+                    android:text="8080" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
             <!-- Flat Card for Active Session Status -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardStatus"

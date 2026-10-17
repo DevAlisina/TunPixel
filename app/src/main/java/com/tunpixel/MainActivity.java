@@ -2,6 +2,8 @@ package com.tunpixel;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -17,17 +19,24 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
+    private static final String PREFS_NAME = "tunpixel_prefs";
+    private static final String KEY_INTERNAL_PORT = "key_internal_port";
+    private static final int DEFAULT_PORT = 8080;
 
     // UI components
     private MaterialToolbar toolbar;
     private TextView textStatus;
     private TextView textSubtitle;
     private TextView textLiveUrlHint;
+    private TextInputLayout layoutPort;
+    private TextInputEditText editPort;
     private MaterialButton buttonToggleTunnel;
     private MaterialButton buttonDetails;
     private ImageView imageTunnel;
@@ -94,17 +103,83 @@ public class MainActivity extends AppCompatActivity {
         textStatus = findViewById(R.id.textStatus);
         textSubtitle = findViewById(R.id.textSubtitle);
         textLiveUrlHint = findViewById(R.id.textLiveUrlHint);
+        layoutPort = findViewById(R.id.layoutPort);
+        editPort = findViewById(R.id.editPort);
         buttonToggleTunnel = findViewById(R.id.buttonToggleTunnel);
         buttonDetails = findViewById(R.id.buttonDetails);
         imageTunnel = findViewById(R.id.imageTunnel);
         cardIcon = findViewById(R.id.cardIcon);
         cardStatus = findViewById(R.id.cardStatus);
         progressBar = findViewById(R.id.progressBar);
+
+        loadSavedPort();
     }
 
     private void setupListeners() {
         buttonToggleTunnel.setOnClickListener(v -> toggleTunnel());
         buttonDetails.setOnClickListener(v -> openTunnelDetails());
+        if (editPort != null) {
+            editPort.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    if (layoutPort != null) {
+                        layoutPort.setError(null);
+                    }
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {}
+            });
+        }
+    }
+
+    private int getValidPort() {
+        if (editPort == null) {
+            return DEFAULT_PORT;
+        }
+        String portStr = editPort.getText() != null ? editPort.getText().toString().trim() : "";
+        if (portStr.isEmpty()) {
+            if (layoutPort != null) {
+                layoutPort.setError(getString(R.string.error_invalid_port));
+            }
+            return -1;
+        }
+        try {
+            int port = Integer.parseInt(portStr);
+            if (port < 1 || port > 65535) {
+                if (layoutPort != null) {
+                    layoutPort.setError(getString(R.string.error_invalid_port));
+                }
+                return -1;
+            }
+            if (layoutPort != null) {
+                layoutPort.setError(null);
+            }
+            return port;
+        } catch (NumberFormatException e) {
+            if (layoutPort != null) {
+                layoutPort.setError(getString(R.string.error_invalid_port));
+            }
+            return -1;
+        }
+    }
+
+    private void loadSavedPort() {
+        int savedPort = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                .getInt(KEY_INTERNAL_PORT, DEFAULT_PORT);
+        if (editPort != null) {
+            editPort.setText(String.valueOf(savedPort));
+        }
+    }
+
+    private void savePort(int port) {
+        getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                .edit()
+                .putInt(KEY_INTERNAL_PORT, port)
+                .apply();
     }
 
     private void toggleTunnel() {
@@ -127,9 +202,17 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        int port = getValidPort();
+        if (port == -1) {
+            return;
+        }
+
+        savePort(port);
+        final String localUrl = "http://localhost:" + port;
+
         updateUiState(true, true);
         new Thread(() -> {
-            tunnelManager.startTunnel("http://localhost:8080");
+            tunnelManager.startTunnel(localUrl);
             try {
                 Thread.sleep(3000);
                 runOnUiThread(() -> {
@@ -163,6 +246,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateUiState(boolean tunneled, boolean loading) {
         this.isTunneled = tunneled;
+
+        if (layoutPort != null) {
+            layoutPort.setEnabled(!loading && !tunneled);
+        }
 
         if (loading) {
             progressBar.setVisibility(View.VISIBLE);

@@ -24,6 +24,11 @@
     <string name="text_subtitle_running">Connected via Cloudflare QUIC</string>
     <string name="text_subtitle_error">Something went wrong. Please try again.</string>
 
+    <!-- Internal Port Input -->
+    <string name="hint_internal_port">Internal Port</string>
+    <string name="helper_internal_port">Target port on localhost (1–65535)</string>
+    <string name="error_invalid_port">Please enter a valid port number (1–65535)</string>
+
     <!-- Details screen -->
     <string name="text_tunnel_details">Tunnel Details</string>
     <string name="label_tunnel_url">Tunnel URL</string>
