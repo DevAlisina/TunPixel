@@ -3,10 +3,7 @@ package com.tunpixel;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,8 +14,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.splashscreen.SplashScreen;
 
 import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.chip.Chip;
-import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
 
 import java.io.File;
 
@@ -28,12 +26,13 @@ public class MainActivity extends AppCompatActivity {
     // UI components
     private MaterialToolbar toolbar;
     private TextView textStatus;
-    private Button buttonToggleTunnel;
-    private Button buttonDetails;
+    private TextView textSubtitle;
+    private MaterialButton buttonToggleTunnel;
+    private MaterialButton buttonDetails;
     private ImageView imageTunnel;
-    private ProgressBar progressBar;
-    private ChipGroup chipGroupDns;
-    private LinearLayout dnsContainer;
+    private MaterialCardView cardIcon;
+    private MaterialCardView cardStatus;
+    private LinearProgressIndicator progressBar;
 
     // State
     private TunnelManager tunnelManager;
@@ -85,35 +84,18 @@ public class MainActivity extends AppCompatActivity {
     private void initViews() {
         toolbar = findViewById(R.id.toolbar);
         textStatus = findViewById(R.id.textStatus);
+        textSubtitle = findViewById(R.id.textSubtitle);
         buttonToggleTunnel = findViewById(R.id.buttonToggleTunnel);
         buttonDetails = findViewById(R.id.buttonDetails);
         imageTunnel = findViewById(R.id.imageTunnel);
+        cardIcon = findViewById(R.id.cardIcon);
+        cardStatus = findViewById(R.id.cardStatus);
         progressBar = findViewById(R.id.progressBar);
-        chipGroupDns = findViewById(R.id.chipGroupDns);
-        dnsContainer = findViewById(R.id.dnsContainer);
     }
 
     private void setupListeners() {
         buttonToggleTunnel.setOnClickListener(v -> toggleTunnel());
         buttonDetails.setOnClickListener(v -> openTunnelDetails());
-
-        // DNS mode chips
-        chipGroupDns.setOnCheckedChangeListener((group, checkedId) -> {
-            if (checkedId != View.NO_ID) {
-                String mode;
-                if (checkedId == R.id.chipDnsCloudflare) {
-                    mode = "cloudflare";
-                } else if (checkedId == R.id.chipDnsCustom) {
-                    mode = "custom";
-                } else if (checkedId == R.id.chipDnsAuto) {
-                    mode = "auto";
-                } else {
-                    mode = "cloudflare";
-                }
-                tunnelManager.setDnsMode(mode);
-                LogStore.i(TAG, "DNS mode selected: " + mode);
-            }
-        });
     }
 
     private void toggleTunnel() {
@@ -126,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void startTunnel() {
         if (!tunnelManager.isBinaryReady()) {
-            Toast.makeText(this, "Binary not ready. Downloading...", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.text_no_binary, Toast.LENGTH_SHORT).show();
             downloadBinary();
             return;
         }
@@ -142,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
                     if (running) {
                         updateUiState(true, false);
                     } else {
-                        Toast.makeText(MainActivity.this, "Failed to start tunnel", Toast.LENGTH_LONG).show();
+                        Toast.makeText(MainActivity.this, R.string.text_subtitle_error, Toast.LENGTH_LONG).show();
                         updateUiState(false, false);
                     }
                 });
@@ -172,23 +154,32 @@ public class MainActivity extends AppCompatActivity {
         if (loading) {
             progressBar.setVisibility(View.VISIBLE);
             buttonToggleTunnel.setEnabled(false);
-            textStatus.setText("Connecting...");
-            imageTunnel.setImageResource(R.drawable.ic_baseline_cloud_24);
+            if (tunneled) {
+                textStatus.setText(R.string.text_tunnel_connecting);
+                textSubtitle.setText(R.string.text_subtitle_connecting);
+            } else {
+                textStatus.setText(R.string.text_closing);
+                textSubtitle.setText(R.string.text_closing);
+            }
         } else {
             progressBar.setVisibility(View.GONE);
             buttonToggleTunnel.setEnabled(true);
 
             if (tunneled) {
                 textStatus.setText(R.string.text_tunnel_running);
+                textSubtitle.setText(R.string.text_subtitle_running);
                 buttonToggleTunnel.setText(R.string.action_stop_tunnel);
-                imageTunnel.setImageResource(R.drawable.ic_baseline_vpn_key_24);
-                dnsContainer.setVisibility(View.GONE);
+                buttonToggleTunnel.setIconResource(R.drawable.ic_baseline_vpn_key_24);
+                imageTunnel.setImageResource(R.drawable.ic_baseline_check_circle_24);
+                cardStatus.setVisibility(View.VISIBLE);
                 buttonDetails.setVisibility(View.VISIBLE);
             } else {
                 textStatus.setText(R.string.text_tunnel_stopped);
+                textSubtitle.setText(R.string.text_subtitle_ready);
                 buttonToggleTunnel.setText(R.string.action_start_tunnel);
+                buttonToggleTunnel.setIconResource(R.drawable.ic_baseline_play_arrow_24);
                 imageTunnel.setImageResource(R.drawable.ic_baseline_cloud_24);
-                dnsContainer.setVisibility(View.VISIBLE);
+                cardStatus.setVisibility(View.GONE);
                 buttonDetails.setVisibility(View.GONE);
             }
         }
@@ -197,6 +188,7 @@ public class MainActivity extends AppCompatActivity {
     private void checkBinaryState() {
         if (!tunnelManager.isBinaryReady()) {
             textStatus.setText(R.string.text_no_binary);
+            textSubtitle.setText(R.string.text_no_binary);
             buttonToggleTunnel.setEnabled(false);
         } else {
             buttonToggleTunnel.setEnabled(true);
@@ -222,20 +214,6 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, TunnelDetailsActivity.class);
         intent.putExtra("tunnel_url", tunnelManager.getTunnelUrl());
         intent.putExtra("tunnel_hostname", tunnelManager.getTunnelHostname());
-        intent.putExtra("dns_mode", tunnelManager.getDnsMode());
         startActivity(intent);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        // Fallback handler for older Android versions
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        // Handle permissions result
     }
 }
