@@ -1,10 +1,19 @@
 package com.tunpixel;
 
+import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
+import android.animation.ValueAnimator;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.HapticFeedbackConstants;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.OvershootInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,9 +53,10 @@ public class MainActivity extends AppCompatActivity {
     private MaterialCardView cardStatus;
     private LinearProgressIndicator progressBar;
 
-    // State
+    // State & Animations
     private TunnelManager tunnelManager;
     private boolean isTunneled = false;
+    private ObjectAnimator pulseAnimator;
 
     // Activity result launcher for binary download
     private final ActivityResultLauncher<Intent> binaryDownloadLauncher =
@@ -116,8 +126,44 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupListeners() {
-        buttonToggleTunnel.setOnClickListener(v -> toggleTunnel());
-        buttonDetails.setOnClickListener(v -> openTunnelDetails());
+        buttonToggleTunnel.setOnClickListener(v -> {
+            v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+            toggleTunnel();
+        });
+        buttonDetails.setOnClickListener(v -> {
+            v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+            openTunnelDetails();
+        });
+
+        // Dynamic interactive hero card: tap to start or view status
+        if (cardIcon != null) {
+            cardIcon.setOnClickListener(v -> {
+                v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+                if (!isTunneled) {
+                    toggleTunnel();
+                } else {
+                    v.animate().scaleX(1.08f).scaleY(1.08f).setDuration(120).withEndAction(() ->
+                        v.animate().scaleX(1.0f).scaleY(1.0f).setDuration(120).start()
+                    ).start();
+                    String url = tunnelManager != null ? tunnelManager.getTunnelUrl() : null;
+                    if (url != null && !url.isEmpty()) {
+                        copyToClipboard(url, getString(R.string.text_copied));
+                    }
+                }
+            });
+        }
+
+        // Tap active session card to copy live URL
+        if (cardStatus != null) {
+            cardStatus.setOnClickListener(v -> {
+                v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+                String url = tunnelManager != null ? tunnelManager.getTunnelUrl() : null;
+                if (url != null && !url.isEmpty()) {
+                    copyToClipboard(url, getString(R.string.text_copied));
+                }
+            });
+        }
+
         if (editPort != null) {
             editPort.addTextChangedListener(new TextWatcher() {
                 @Override
@@ -127,12 +173,80 @@ public class MainActivity extends AppCompatActivity {
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
                     if (layoutPort != null) {
                         layoutPort.setError(null);
+                        String portStr = s != null ? s.toString().trim() : "";
+                        if (!portStr.isEmpty()) {
+                            try {
+                                int p = Integer.parseInt(portStr);
+                                if (p >= 1 && p <= 65535) {
+                                    layoutPort.setHelperText("Will tunnel: http://localhost:" + p);
+                                } else {
+                                    layoutPort.setHelperText(getString(R.string.helper_internal_port));
+                                }
+                            } catch (NumberFormatException ignored) {
+                                layoutPort.setHelperText(getString(R.string.helper_internal_port));
+                            }
+                        } else {
+                            layoutPort.setHelperText(getString(R.string.helper_internal_port));
+                        }
                     }
                 }
 
                 @Override
                 public void afterTextChanged(Editable s) {}
             });
+        }
+    }
+
+    private void startPulseAnimation() {
+        if (cardIcon == null) return;
+        if (pulseAnimator == null) {
+            PropertyValuesHolder scaleX = PropertyValuesHolder.ofFloat(View.SCALE_X, 1.0f, 1.08f);
+            PropertyValuesHolder scaleY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 1.0f, 1.08f);
+            pulseAnimator = ObjectAnimator.ofPropertyValuesHolder(cardIcon, scaleX, scaleY);
+            pulseAnimator.setDuration(700);
+            pulseAnimator.setRepeatCount(ValueAnimator.INFINITE);
+            pulseAnimator.setRepeatMode(ValueAnimator.REVERSE);
+            pulseAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        }
+        if (!pulseAnimator.isRunning()) {
+            pulseAnimator.start();
+        }
+    }
+
+    private void stopPulseAnimation() {
+        if (pulseAnimator != null && pulseAnimator.isRunning()) {
+            pulseAnimator.cancel();
+        }
+        if (cardIcon != null) {
+            cardIcon.animate()
+                .scaleX(1.0f)
+                .scaleY(1.0f)
+                .setDuration(250)
+                .start();
+        }
+    }
+
+    private void animateConnectedSuccess() {
+        stopPulseAnimation();
+        if (cardIcon != null) {
+            cardIcon.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+            cardIcon.setScaleX(0.85f);
+            cardIcon.setScaleY(0.85f);
+            cardIcon.animate()
+                .scaleX(1.0f)
+                .scaleY(1.0f)
+                .setDuration(450)
+                .setInterpolator(new OvershootInterpolator(2.4f))
+                .start();
+        }
+    }
+
+    private void copyToClipboard(String text, String message) {
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        if (clipboard != null) {
+            ClipData clip = ClipData.newPlainText("tunnel_info", text);
+            clipboard.setPrimaryClip(clip);
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -252,6 +366,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (loading) {
+            startPulseAnimation();
             progressBar.setVisibility(View.VISIBLE);
             buttonToggleTunnel.setEnabled(false);
             if (tunneled) {
@@ -266,6 +381,7 @@ public class MainActivity extends AppCompatActivity {
             buttonToggleTunnel.setEnabled(true);
 
             if (tunneled) {
+                animateConnectedSuccess();
                 textStatus.setText(R.string.text_tunnel_running);
                 textSubtitle.setText(R.string.text_subtitle_running);
                 buttonToggleTunnel.setText(R.string.action_stop_tunnel);
@@ -279,18 +395,58 @@ public class MainActivity extends AppCompatActivity {
                     textLiveUrlHint.setText(R.string.text_tunnel_active_hint);
                 }
 
-                cardStatus.setVisibility(View.VISIBLE);
-                buttonDetails.setVisibility(View.VISIBLE);
+                if (cardStatus.getVisibility() != View.VISIBLE) {
+                    cardStatus.setAlpha(0f);
+                    cardStatus.setTranslationY(24f);
+                    cardStatus.setVisibility(View.VISIBLE);
+                    cardStatus.animate()
+                        .alpha(1f)
+                        .translationY(0f)
+                        .setDuration(350)
+                        .setInterpolator(new DecelerateInterpolator())
+                        .start();
+                }
+
+                if (buttonDetails.getVisibility() != View.VISIBLE) {
+                    buttonDetails.setAlpha(0f);
+                    buttonDetails.setVisibility(View.VISIBLE);
+                    buttonDetails.animate()
+                        .alpha(1f)
+                        .setDuration(300)
+                        .start();
+                }
             } else {
+                stopPulseAnimation();
                 textStatus.setText(R.string.text_tunnel_stopped);
                 textSubtitle.setText(R.string.text_subtitle_ready);
                 buttonToggleTunnel.setText(R.string.action_start_tunnel);
                 buttonToggleTunnel.setIconResource(R.drawable.ic_baseline_play_arrow_24);
                 imageTunnel.setImageResource(R.drawable.ic_modern_cloud_24);
-                cardStatus.setVisibility(View.GONE);
-                buttonDetails.setVisibility(View.GONE);
+
+                if (cardStatus.getVisibility() == View.VISIBLE) {
+                    cardStatus.animate()
+                        .alpha(0f)
+                        .translationY(24f)
+                        .setDuration(250)
+                        .withEndAction(() -> cardStatus.setVisibility(View.GONE))
+                        .start();
+                }
+
+                if (buttonDetails.getVisibility() == View.VISIBLE) {
+                    buttonDetails.animate()
+                        .alpha(0f)
+                        .setDuration(200)
+                        .withEndAction(() -> buttonDetails.setVisibility(View.GONE))
+                        .start();
+                }
             }
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        stopPulseAnimation();
+        super.onDestroy();
     }
 
     private void checkBinaryState() {

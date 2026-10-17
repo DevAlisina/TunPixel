@@ -6,7 +6,7 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
 
-    <!-- Outer Tunnel Portal Ring (Material Glow) -->
+    <!-- Outer Tunnel Portal Ring (Cloudflare Orange Glow) -->
     <path
         android:pathData="M54,26 C69.46,26 82,38.54 82,54 C82,69.46 69.46,82 54,82 C38.54,82 26,69.46 26,54 C26,38.54 38.54,26 54,26 Z"
         android:strokeWidth="4">
@@ -17,8 +17,9 @@
                 android:endX="82"
                 android:endY="82"
                 android:type="linear">
-                <item android:offset="0.0" android:color="#FFFFB784" />
-                <item android:offset="1.0" android:color="#FFD0BCFF" />
+                <item android:offset="0.0" android:color="#FFFFDBC8" />
+                <item android:offset="0.5" android:color="#FFF38020" />
+                <item android:offset="1.0" android:color="#FFE65100" />
             </gradient>
         </aapt:attr>
     </path>
@@ -29,27 +30,27 @@
         android:strokeColor="#66FFFFFF"
         android:strokeWidth="2.5" />
 
-    <!-- Center Cloud / Tunnel Core -->
+    <!-- Center TunPixel Minimal Cloud with Tunnel Gateway -->
+    <!-- Scaled to 108 coordinate system centered at (54, 54) -->
     <path
-        android:pathData="M64.5,50.5 C63.9,47.8 61.5,45.8 58.6,45.8 C56.3,45.8 54.3,47.1 53.3,49 C50.9,49.2 49,51.3 49,53.8 C49,56.4 51.1,58.5 53.8,58.5 L64.2,58.5 C66.4,58.5 68.2,56.7 68.2,54.5 C68.2,52.4 66.5,50.7 64.5,50.5 Z"
+        android:pathData="M69,61 C72.5,61 75.3,58.2 75.3,54.7 C75.3,51.4 72.8,48.7 69.6,48.3 C68.8,41.7 63.2,36.5 56.4,36.5 C50.8,36.5 46.0,40.0 44.0,44.9 C40.1,45.6 37.0,49.0 37.0,53.2 C37.0,57.6 40.5,61 44.9,61 L51.9,61 L51.9,54.3 C51.9,52.0 53.8,50.1 56.4,50.1 C58.8,50.1 60.7,52.0 60.7,54.3 L60.7,61 L69,61 Z"
         android:fillColor="#FFFFFFFF" />
 
-    <!-- Modern Pixel Sparkles / Nodes (TunPixel Identity) -->
-    <!-- Center lightning / speed beam through tunnel -->
+    <!-- Center Tunnel Beacon Node -->
     <path
-        android:pathData="M51,46 L47,53 L53,53 L49,62 L57,51 L51,51 Z"
-        android:fillColor="#FFFFB784" />
+        android:pathData="M56.4,56.1 A2.2,2.2 0 1,1 56.4,56.09 Z"
+        android:fillColor="#FFF38020" />
 
-    <!-- Futuristic Orbiting Connection Nodes -->
+    <!-- Futuristic Orbiting Connection Nodes (Orange Palette) -->
     <path
         android:pathData="M54,20 A3,3 0 1,1 54,20.01"
         android:fillColor="#FFFFFFFF" />
     <path
         android:pathData="M88,54 A3,3 0 1,1 88,54.01"
-        android:fillColor="#FFFFB784" />
+        android:fillColor="#FFFFDBC8" />
     <path
         android:pathData="M54,88 A3,3 0 1,1 54,88.01"
-        android:fillColor="#FFD0BCFF" />
+        android:fillColor="#FFF38020" />
     <path
         android:pathData="M20,54 A3,3 0 1,1 20,54.01"
         android:fillColor="#FFFFFFFF" />

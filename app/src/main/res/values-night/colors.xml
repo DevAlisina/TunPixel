@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark Mode Cloudflare Orange Material 3 Palette -->
+    <color name="color_primary">#FFFFB689</color>
+    <color name="color_on_primary">#FF502400</color>
+    <color name="color_primary_container">#FF733600</color>
+    <color name="color_on_primary_container">#FFFFDBC8</color>
+
+    <color name="color_secondary">#FFE6BEAC</color>
+    <color name="color_on_secondary">#FF432B1D</color>
+    <color name="color_secondary_container">#FF5C4132</color>
+    <color name="color_on_secondary_container">#FFFFDBCB</color>
+
+    <color name="color_tertiary">#FFD2C68D</color>
+    <color name="color_on_tertiary">#FF373005</color>
+    <color name="color_tertiary_container">#FF4E471A</color>
+    <color name="color_on_tertiary_container">#FFEFE2A7</color>
+
+    <color name="color_error">#FFFFB4AB</color>
+    <color name="color_on_error">#FF690005</color>
+    <color name="color_error_container">#FF93000A</color>
+    <color name="color_on_error_container">#FFFFDAD6</color>
+
+    <color name="color_background">#FF18120F</color>
+    <color name="color_on_background">#FFEDE0DA</color>
+
+    <!-- Surface colors for Material Design 3 -->
+    <color name="color_surface">#FF18120F</color>
+    <color name="color_on_surface">#FFEDE0DA</color>
+    <color name="color_surface_variant">#FF52443C</color>
+    <color name="color_on_surface_variant">#FFD7C3B7</color>
+    <color name="color_surface_container">#FF251E1A</color>
+    <color name="color_surface_container_highest">#FF362E2A</color>
+    <color name="color_surface_tint">#FFFFB689</color>
+
+    <color name="color_outline">#FFA08D83</color>
+    <color name="color_outline_variant">#FF52443C</color>
+    <color name="color_scrim">#FF000000</color>
+
+    <color name="color_inverse_surface">#FFEDE0DA</color>
+    <color name="color_inverse_on_surface">#FF362F2A</color>
+    <color name="color_inverse_primary">#FF9A4700</color>
+
+    <!-- Elevation overlay -->
+    <color name="color_on_surface_container">#FFEDE0DA</color>
+
+    <!-- Dynamic color theme -->
+    <color name="color_dynamic_primary">#FFFFB689</color>
+    <color name="color_dynamic_secondary">#FFE6BEAC</color>
+    <color name="color_dynamic_tertiary">#FFD2C68D</color>
+</resources>

@@ -6,31 +6,31 @@
     android:viewportWidth="48"
     android:viewportHeight="48">
 
-    <!-- Tunnel Portal Outer Ring -->
+    <!-- Outer Tunnel Halo Ring (Warm Cloudflare Glow) -->
     <path
-        android:pathData="M24,8 C32.84,8 40,15.16 40,24 C40,32.84 32.84,40 24,40 C15.16,40 8,32.84 8,24 C8,15.16 15.16,8 24,8 Z"
-        android:strokeWidth="3">
+        android:pathData="M24,4 C35.05,4 44,12.95 44,24 C44,35.05 35.05,44 24,44 C12.95,44 4,35.05 4,24 C4,12.95 12.95,4 24,4 Z"
+        android:strokeWidth="2.5">
         <aapt:attr name="android:strokeColor">
             <gradient
-                android:startX="8"
-                android:startY="8"
-                android:endX="40"
-                android:endY="40"
+                android:startX="4"
+                android:startY="4"
+                android:endX="44"
+                android:endY="44"
                 android:type="linear">
-                <item android:offset="0.0" android:color="#FFFFB784" />
-                <item android:offset="1.0" android:color="#FFFFFFFF" />
+                <item android:offset="0.0" android:color="#FFFFDBC8" />
+                <item android:offset="1.0" android:color="#FFF38020" />
             </gradient>
         </aapt:attr>
     </path>
 
-    <!-- Cloud Tunnel Core -->
+    <!-- Minimal TunPixel Cloud Silhouette -->
     <path
-        android:pathData="M31,21.5 C30.5,19.5 28.7,18 26.5,18 C24.7,18 23.2,19 22.4,20.5 C20.5,20.7 19,22.3 19,24.3 C19,26.4 20.6,28 22.8,28 L30.8,28 C32.5,28 34,26.5 34,24.8 C34,23.1 32.6,21.7 31,21.5 Z"
+        android:pathData="M37,33 C40.3,33 43,30.3 43,27 C43,23.9 40.7,21.4 37.7,21 C36.9,14.8 31.6,10 25.2,10 C20,10 15.5,13.2 13.6,17.8 C9.9,18.5 7,21.7 7,25.6 C7,29.7 10.3,33 14.4,33 L21,33 L21,26.7 C21,24.5 22.8,22.7 25.2,22.7 C27.5,22.7 29.3,24.5 29.3,26.7 L29.3,33 L37,33 Z"
         android:fillColor="#FFFFFFFF" />
 
-    <!-- Center Pulse Beam -->
+    <!-- Center Tunnel Beacon Node -->
     <path
-        android:pathData="M22,18 L18,24 L23,24 L20,31 L27,22 L22,22 Z"
-        android:fillColor="#FFFFB784" />
+        android:pathData="M25.2,28.4 A2,2 0 1,1 25.2,28.39 Z"
+        android:fillColor="#FFF38020" />
 
 </vector>
